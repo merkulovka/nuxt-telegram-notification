@@ -5,12 +5,7 @@
   "repository": "your-org/my-module",
   "license": "MIT",
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/types.d.mts",
-      "import": "./dist/module.mjs"
-    }
-  },
+  "exports": { "./module": "./src/module.ts" },
   "main": "./dist/module.mjs",
   "typesVersions": {
     "*": {
