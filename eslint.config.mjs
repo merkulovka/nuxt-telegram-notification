@@ -14,7 +14,8 @@ export default createConfigForNuxt({
       './playground',
     ],
   },
+}).overrideRules({
+  'vue/multi-word-component-names': 'off',
+  '@typescript-eslint/no-explicit-any': 'off',
+  'prefer-regex-literals': 'off',
 })
-  .append(
-    // your custom flat config here...
-  )

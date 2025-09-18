@@ -1,6 +1,6 @@
 {
-  "name": "my-module",
-  "version": "1.0.0",
+  "name": "nuxt-telegram-notify",
+  "version": "0.0.1-beta",
   "description": "My new Nuxt module",
   "repository": "your-org/my-module",
   "license": "MIT",
