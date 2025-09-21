@@ -1,11 +1,13 @@
 {
   "name": "nuxt-telegram-notify",
   "version": "0.0.1-beta",
-  "description": "My new Nuxt module",
-  "repository": "your-org/my-module",
+  "description": "Nuxt 3/4 module for sending Telegram notifications with error auto-capture, rate-limiting, deduplication, and secure botToken/chatId handling.",
+  "repository": "merkulovka/nuxt-telegram-notification",
   "license": "MIT",
   "type": "module",
-  "exports": { "./module": "./src/module.ts" },
+  "exports": {
+    "./module": "./src/module.ts"
+  },
   "main": "./dist/module.mjs",
   "typesVersions": {
     "*": {
@@ -29,7 +31,8 @@
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "dependencies": {
-    "@nuxt/kit": "^4.0.3"
+    "@nuxt/kit": "^4.0.3",
+    "defu": "^6.1.4"
   },
   "devDependencies": {
     "@nuxt/devtools": "^2.6.2",
