@@ -1,84 +1,165 @@
-<!--
-Get your module up and running quickly.
+# nuxt-telegram-notifier
 
-Find and replace all on all files (CMD+SHIFT+F):
-- Name: My Module
-- Package name: my-module
-- Description: My new Nuxt module
--->
+Модуль для Nuxt 3/4 для отправки уведомлений в Telegram с поддержкой авто-сбора ошибок, rate-limit и скрытием `botToken`/`chatId` на сервере.
 
-# My Module
+---
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![License][license-src]][license-href]
-[![Nuxt][nuxt-src]][nuxt-href]
+## ✨ Возможности
 
-My new Nuxt module for doing amazing things.
+- Композабл `useTelegramNotifier()` для отправки сообщений: `info`, `success`, `warning`, `error`.
+- Автоматический сбор ошибок (Vue, window, unhandledRejection, console.error).
+- Rate-limit per-IP (защита от DDoS).
+- Дедупликация сообщений (на клиенте и сервере).
+- Поддержка тегов, `threadId`, override `chatId`.
+- Сообщения форматируются: эмодзи, title, description, stack как кодовый блок.
 
-- [✨ &nbsp;Release Notes](/CHANGELOG.md)
-<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
-<!-- - [📖 &nbsp;Documentation](https://example.com) -->
+---
 
-## Features
+## 🚀 Установка
 
-<!-- Highlight some of the features your module provide here -->
-- ⛰ &nbsp;Foo
-- 🚠 &nbsp;Bar
-- 🌲 &nbsp;Baz
+Добавьте модуль в проект Nuxt:
 
-## Quick Setup
-
-Install the module to your Nuxt application with one command:
-
-```bash
-npx nuxi module add my-module
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: [
+    '~/modules/nuxt-telegram-notifier',
+  ],
+  telegramNotify:
+    {
+      enabled: true,
+      botToken: process.env.TELEGRAM_BOT_TOKEN!,
+      chatId: process.env.TELEGRAM_CHAT_ID!,
+      apiUrl: 'https://api.telegram.org',
+      rateLimitPerIp: 30,
+      rateLimitWindowSec: 10,
+      dedupeWindowSec: 10,
+      autoCapture: {
+        enabled: true,
+        includeVueErrors: true,
+        includeWindowError: true,
+        includeUnhandledRejection: true,
+        captureConsoleError: false,
+        sampleRate: 1,
+        dedupeWindowMs: 5000,
+        ignorePatterns: ['ResizeObserver loop limit exceeded']
+      }
+    }
+})
 ```
 
-That's it! You can now use My Module in your Nuxt app ✨
+Добавьте в `.env`:
 
+```env
+TELEGRAM_BOT_TOKEN=123:ABC...
+TELEGRAM_CHAT_ID=-1001234567890
+```
 
-## Contribution
+---
 
-<details>
-  <summary>Local development</summary>
-  
-  ```bash
-  # Install dependencies
-  npm install
-  
-  # Generate type stubs
-  npm run dev:prepare
-  
-  # Develop with the playground
-  npm run dev
-  
-  # Build the playground
-  npm run dev:build
-  
-  # Run ESLint
-  npm run lint
-  
-  # Run Vitest
-  npm run test
-  npm run test:watch
-  
-  # Release new version
-  npm run release
-  ```
+## 📦 Использование
 
-</details>
+В любом компоненте:
 
+```vue
+<script setup lang="ts">
+const notifier = useTelegramNotifier()
 
-<!-- Badges -->
-[npm-version-src]: https://img.shields.io/npm/v/my-module/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/my-module
+await notifier.info({
+  tags: ['Инфра'],
+  title: 'Деплой завершён',
+  description: 'Новый релиз доступен'
+})
 
-[npm-downloads-src]: https://img.shields.io/npm/dm/my-module.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npm.chart.dev/my-module
+try {
+  throw new Error('Payment failed: insufficient funds\nat pay() ...')
+} catch (e) {
+  await notifier.error({
+    tags: ['ОшибкаОплаты'],
+    title: 'Ошибка оплаты',
+    description: 'Платёж не прошёл',
+    stack: e,
+    threadId: 12345
+  })
+}
+</script>
+```
 
-[license-src]: https://img.shields.io/npm/l/my-module.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/my-module
+### API композабла
 
-[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
-[nuxt-href]: https://nuxt.com
+```ts
+useTelegramNotifier().info(payload)
+useTelegramNotifier().success(payload)
+useTelegramNotifier().warning(payload)
+useTelegramNotifier().error(payload)
+```
+
+**payload:**
+
+```ts
+{
+  title: string
+  description?: string
+  tags?: string[]
+  stack?: string | Error
+  chatId?: string | number
+  threadId?: number
+}
+```
+
+---
+
+## ⚙️ Автосбор ошибок
+
+Если `autoCapture.enabled: true`, модуль автоматически:
+
+- ловит ошибки Vue/Nuxt (`vue:error`, `app:error`),
+- слушает `window.onerror`,
+- слушает `unhandledrejection`,
+- (опционально) патчит `console.error`.
+
+Параметры:
+
+- `sampleRate` — 0..1 (семплинг),
+- `dedupeWindowMs` — окно дедупликации на клиенте,
+- `ignorePatterns` — список строк/регэкспов для фильтрации шумных ошибок.
+
+---
+
+## 🔒 Rate-limit / DDoS защита
+
+- `rateLimitPerIp` — число запросов,
+- `rateLimitWindowSec` — окно (секунды).
+
+При превышении: `429 Too Many Requests`, заголовки `X-RateLimit-*` и `Retry-After`.
+
+⚠️ In-memory реализация. Для продакшена с несколькими инстансами используйте Redis/Upstash.
+
+---
+
+## 📑 Формат сообщений
+
+- Теги → Title (эмодзи + жирный) → description → stack.
+- Stack → `<pre><code>...</code></pre>` (первые 2–3 строки).
+- Эмодзи: info ℹ️, success ✅, warning ⚠️, error ❌.
+
+---
+
+## 🛠️ Отладка
+
+- `401/403` → проверьте `botToken`.
+- `400 chat not found` → проверьте `chatId`.
+- `429` → превысили rate-limit.
+- `Vue app aliases are not allowed in server runtime` → клиентские плагины должны быть `.client.ts` и регистрироваться `mode: 'client'`.
+
+---
+
+## 🔮 В планах
+
+- Redis-совместимый rate-limit.
+- Отправка больших стеков как файл (`sendDocument`).
+- Поддержка MarkdownV2.
+- HMAC-подпись для вызовов API.
+
+---
+
