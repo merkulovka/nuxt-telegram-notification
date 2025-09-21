@@ -8,7 +8,7 @@ import {
 } from 'h3'
 import type { NotifyPayload, NotifyType } from '~/src/runtime/types'
 
-// import { useRuntimeConfig } from "nuxt/app";
+import { useRuntimeConfig } from "#imports";
 
 const EMOJI: Record<NotifyType, string> = {
   info: 'ℹ️',

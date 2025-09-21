@@ -1,4 +1,4 @@
-# nuxt-telegram-notifier
+# nuxt-telegram-notification
 
 Модуль для Nuxt 3/4 для отправки уведомлений в Telegram с поддержкой авто-сбора ошибок, rate-limit и скрытием `botToken`/`chatId` на сервере.
 
@@ -6,7 +6,7 @@
 
 ## ✨ Возможности
 
-- Композабл `useTelegramNotifier()` для отправки сообщений: `info`, `success`, `warning`, `error`.
+- Композабл `useTelegramNotify()` для отправки сообщений: `info`, `success`, `warning`, `error`.
 - Автоматический сбор ошибок (Vue, window, unhandledRejection, console.error).
 - Rate-limit per-IP (защита от DDoS).
 - Дедупликация сообщений (на клиенте и сервере).
@@ -23,14 +23,14 @@
 // nuxt.config.ts
 export default defineNuxtConfig({
   modules: [
-    '~/modules/nuxt-telegram-notifier',
+    '~/modules/nuxt-telegram-notification',
   ],
   telegramNotify:
     {
       enabled: true,
       botToken: process.env.TELEGRAM_BOT_TOKEN!,
       chatId: process.env.TELEGRAM_CHAT_ID!,
-      apiUrl: 'https://api.telegram.org',
+      apiUrl: '/api/telegram-notify',
       rateLimitPerIp: 30,
       rateLimitWindowSec: 10,
       dedupeWindowSec: 10,
@@ -63,7 +63,7 @@ TELEGRAM_CHAT_ID=-1001234567890
 
 ```vue
 <script setup lang="ts">
-const notifier = useTelegramNotifier()
+const notifier = useTelegramNotify()
 
 await notifier.info({
   tags: ['Инфра'],
@@ -88,10 +88,10 @@ try {
 ### API композабла
 
 ```ts
-useTelegramNotifier().info(payload)
-useTelegramNotifier().success(payload)
-useTelegramNotifier().warning(payload)
-useTelegramNotifier().error(payload)
+useTelegramNotify().info(payload)
+useTelegramNotify().success(payload)
+useTelegramNotify().warning(payload)
+useTelegramNotify().error(payload)
 ```
 
 **payload:**
@@ -142,24 +142,4 @@ useTelegramNotifier().error(payload)
 - Теги → Title (эмодзи + жирный) → description → stack.
 - Stack → `<pre><code>...</code></pre>` (первые 2–3 строки).
 - Эмодзи: info ℹ️, success ✅, warning ⚠️, error ❌.
-
----
-
-## 🛠️ Отладка
-
-- `401/403` → проверьте `botToken`.
-- `400 chat not found` → проверьте `chatId`.
-- `429` → превысили rate-limit.
-- `Vue app aliases are not allowed in server runtime` → клиентские плагины должны быть `.client.ts` и регистрироваться `mode: 'client'`.
-
----
-
-## 🔮 В планах
-
-- Redis-совместимый rate-limit.
-- Отправка больших стеков как файл (`sendDocument`).
-- Поддержка MarkdownV2.
-- HMAC-подпись для вызовов API.
-
----
 

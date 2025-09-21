@@ -8,6 +8,7 @@ import {
 } from '@nuxt/kit'
 import defu from 'defu'
 
+export type * from './runtime/types'
 /**
  * Опции конфигурации для модуля `nuxt-telegram-notify`.
  */
@@ -151,7 +152,7 @@ export interface ModuleOptions {
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'nuxt-telegram-notify',
+    name: 'nuxt-telegram-notification',
     configKey: 'telegramNotify',
     compatibility: { nuxt: '^3.0.0 || ^4.0.0' },
   },

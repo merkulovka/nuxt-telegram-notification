@@ -1,8 +1,16 @@
 {
   "name": "nuxt-telegram-notification",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "Nuxt 3/4 module for sending Telegram notifications with error auto-capture, rate-limiting, deduplication, and secure botToken/chatId handling.",
-  "repository": "merkulovka/nuxt-telegram-notification",
+  "author": {
+    "name": "Kirill Merkulov",
+    "url": "https://github.com/merkulovka"
+  },
+  "homepage": "https://github.com/merkulovka/nuxt-telegram-notification#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/merkulovka/nuxt-telegram-notification.git"
+  },
   "license": "MIT",
   "type": "module",
   "exports": {
