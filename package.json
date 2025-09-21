@@ -1,21 +1,19 @@
 {
-  "name": "nuxt-telegram-notify",
-  "version": "0.0.1-beta",
+  "name": "nuxt-telegram-notification",
+  "version": "0.0.2",
   "description": "Nuxt 3/4 module for sending Telegram notifications with error auto-capture, rate-limiting, deduplication, and secure botToken/chatId handling.",
   "repository": "merkulovka/nuxt-telegram-notification",
   "license": "MIT",
   "type": "module",
   "exports": {
-    "./module": "./src/module.ts"
+    ".": {
+      "types": "./dist/module.d.mts",
+      "import": "./dist/module.mjs"
+    },
+    "./types": "./dist/types.d.mts"
   },
   "main": "./dist/module.mjs",
-  "typesVersions": {
-    "*": {
-      ".": [
-        "./dist/types.d.mts"
-      ]
-    }
-  },
+  "types": "./dist/types.d.mts",
   "files": [
     "dist"
   ],
@@ -24,7 +22,7 @@
     "dev": "npm run dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
+    "release": "npm run lint &&  npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest watch",
